@@ -146,19 +146,20 @@ def vidWindow():
         exit()
 
 
-def createDetector(t1=20,t2=200, all=0.5, area=200):
+def createDetector(t1=20,t2=200, all=0.5, area=150):
         # Setup SimpleBlobDetector parameters.
+	# this is the true detector - 
     params = cv2.SimpleBlobDetector_Params()
     params.minThreshold = t1;          # Change thresholds
     params.maxThreshold = t2;
     params.filterByArea = True         # Filter by Area.
     params.minArea = area
     params.filterByCircularity = True  # Filter by Circularity
-    params.minCircularity = all
+    params.minCircularity = .875
     params.filterByConvexity = True    # Filter by Convexity
-    params.minConvexity = all
+    params.minConvexity = .6
     params.filterByInertia = True      # Filter by Inertia
-    params.minInertiaRatio = all
+    params.minInertiaRatio = .75
     #ver = (cv2.__version__).split('.') # Create a detector with the parameters
     #if int(ver[0]) < 3 :
     #    detector = cv2.SimpleBlobDetector(params)
@@ -397,9 +398,14 @@ def runVideoStream():
         (grabbed, fg) = vs.read()
         frame = imutils.rotate_bound(fg,rot)
         target = [int(np.around(frame.shape[1]/2)),int(np.around(frame.shape[0]/2))]
+        #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        frame = cv2.bilateralFilter(frame,5,125,125)
+        
 
         if (mono): frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        if (blur[0]): frame = cv2.medianBlur(frame, blur[1])
+        if (blur[0]):
+          frame = cv2.medianBlur(frame, blur[1])
+          print("bluuuur")
 
         keypoints = detector.detect(frame)
 
@@ -480,7 +486,7 @@ def showBlobs(im):
     params.minThreshold = 10;
     params.maxThreshold = 200;
     params.filterByArea = True         # Filter by Area.
-    params.minArea = 150
+    params.minArea = 10
     params.filterByCircularity = False  # Filter by Circularity
     params.filterByConvexity = False    # Filter by Convexity
     params.filterByInertia = False      # Filter by Inertia
